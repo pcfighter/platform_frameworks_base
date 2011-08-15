@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.android.tools.layoutlib.create.AsmAnalyzer.DependencyVisitor;
+import com.android.tools.layoutlib.create.LogTest.MockLog;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,9 +46,9 @@ public class AsmAnalyzerTest {
 
     @Before
     public void setUp() throws Exception {
-        mLog = new MockLog();
+        mLog = new LogTest.MockLog();
         URL url = this.getClass().getClassLoader().getResource("data/mock_android.jar");
-
+        
         mOsJarPath = new ArrayList<String>();
         mOsJarPath.add(url.getFile());
 
@@ -68,9 +69,9 @@ public class AsmAnalyzerTest {
                 "mock_android.dummy.InnerTest$DerivingClass",
                 "mock_android.dummy.InnerTest$MyGenerics1",
                 "mock_android.dummy.InnerTest$MyIntEnum",
-                "mock_android.dummy.InnerTest$MyStaticInnerClass",
-                "mock_android.dummy.InnerTest$NotStaticInner1",
-                "mock_android.dummy.InnerTest$NotStaticInner2",
+                "mock_android.dummy.InnerTest$MyStaticInnerClass",   
+                "mock_android.dummy.InnerTest$NotStaticInner1", 
+                "mock_android.dummy.InnerTest$NotStaticInner2",  
                 "mock_android.view.View",
                 "mock_android.view.ViewGroup",
                 "mock_android.view.ViewGroup$LayoutParams",
@@ -82,7 +83,7 @@ public class AsmAnalyzerTest {
             },
             map.keySet().toArray());
     }
-
+    
     @Test
     public void testFindClass() throws IOException, LogAbortException {
         Map<String, ClassReader> zipClasses = mAa.parseZip(mOsJarPath);
@@ -90,7 +91,7 @@ public class AsmAnalyzerTest {
 
         ClassReader cr = mAa.findClass("mock_android.view.ViewGroup$LayoutParams",
                 zipClasses, found);
-
+        
         assertNotNull(cr);
         assertEquals("mock_android/view/ViewGroup$LayoutParams", cr.getClassName());
         assertArrayEquals(new String[] { "mock_android.view.ViewGroup$LayoutParams" },
@@ -171,14 +172,14 @@ public class AsmAnalyzerTest {
                 "mock_android.widget.TableLayout",
             },
             found.keySet().toArray());
-
+        
         for (String key : found.keySet()) {
             ClassReader value = found.get(key);
             assertNotNull("No value for " + key, value);
             assertEquals(key, AsmAnalyzer.classReaderToClassName(value));
         }
     }
-
+    
     @Test
     public void testDependencyVisitor() throws IOException, LogAbortException {
         Map<String, ClassReader> zipClasses = mAa.parseZip(mOsJarPath);
@@ -189,7 +190,7 @@ public class AsmAnalyzerTest {
 
         ClassReader cr = mAa.findClass("mock_android.widget.TableLayout", zipClasses, keep);
         DependencyVisitor visitor = mAa.getVisitor(zipClasses, keep, new_keep, in_deps, out_deps);
-
+        
         // get first level dependencies
         cr.accept(visitor, 0 /* flags */);
 

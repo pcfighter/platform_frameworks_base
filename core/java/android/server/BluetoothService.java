@@ -992,10 +992,14 @@ public class BluetoothService extends IBluetooth.Stub {
             mHandler.removeMessages(MESSAGE_DISCOVERABLE_TIMEOUT);
             pairable = true;
             discoverable = true;
+            if(duration !=0) {
             Message msg = mHandler.obtainMessage(MESSAGE_DISCOVERABLE_TIMEOUT);
             mHandler.sendMessageDelayed(msg, duration * 1000);
             if (DBG) Log.d(TAG, "BT Discoverable for " + duration + " seconds");
-            break;
+            } else {
+            if (DBG) Log.d(TAG, "BT Discoverable infinitely");
+            }
+        break;
         default:
             Log.w(TAG, "Requested invalid scan mode " + mode);
             return false;

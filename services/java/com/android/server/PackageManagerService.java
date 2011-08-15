@@ -185,9 +185,7 @@ class PackageManagerService extends IPackageManager.Stub {
     static final ComponentName DEFAULT_CONTAINER_COMPONENT = new ComponentName(
             "com.android.defcontainer",
             "com.android.defcontainer.DefaultContainerService");
-
-    static final String mTempContainerPrefix = "smdl2tmp";
-
+    
     final HandlerThread mHandlerThread = new HandlerThread("PackageManager",
             Process.THREAD_PRIORITY_BACKGROUND);
     final PackageHandler mHandler;
@@ -1999,11 +1997,7 @@ class PackageManagerService extends IPackageManager.Stub {
                     ActivityInfo ai = getActivityInfo(pa.mActivity, flags);
                     if (DEBUG_PREFERRED) {
                         Log.v(TAG, "Got preferred activity:");
-                        if (ai != null) {
-                            ai.dump(new LogPrinter(Log.VERBOSE, TAG), "  ");
-                        } else {
-                            Log.v(TAG, "  null");
-                        }
+                        ai.dump(new LogPrinter(Log.INFO, TAG), "  ");
                     }
                     if (ai != null) {
                         for (int j=0; j<N; j++) {
@@ -9466,28 +9460,48 @@ class PackageManagerService extends IPackageManager.Stub {
         }
     }
 
-    /* package */ static String getTempContainerId() {
-        int tmpIdx = 1;
-        String list[] = PackageHelper.getSecureContainerList();
-        if (list != null) {
-            for (final String name : list) {
-                // Ignore null and non-temporary container entries
-                if (name == null || !name.startsWith(mTempContainerPrefix)) {
-                    continue;
-                }
-
-                String subStr = name.substring(mTempContainerPrefix.length());
-                try {
-                    int cid = Integer.parseInt(subStr);
-                    if (cid >= tmpIdx) {
-                        tmpIdx = cid + 1;
-                    }
-                } catch (NumberFormatException e) {
-                }
-            }
-        }
-        return mTempContainerPrefix + tmpIdx;
-    }
+   static String getTempContainerId() {
+       String prefix = "smdl2tmp";
+       int tmpIdx = 1;
+       String list[] = PackageHelper.getSecureContainerList();
+       if (list != null) {
+           int idx = 0;
+           int idList[] = new int[MAX_CONTAINERS];
+           boolean neverFound = true;
+           for (String name : list) {
+               // Ignore null entries
+               if (name == null) {
+                   continue;
+               }
+               int sidx = name.indexOf(prefix);
+               if (sidx == -1) {
+                   // Not a temp file. just ignore
+                   continue;
+               }
+               String subStr = name.substring(sidx + prefix.length());
+               idList[idx] = -1;
+               if (subStr != null) {
+                   try {
+                       int cid = Integer.parseInt(subStr);
+                       idList[idx++] = cid;
+                       neverFound = false;
+                   } catch (NumberFormatException e) {
+                   }
+               }
+           }
+           if (!neverFound) {
+               // Sort idList
+               Arrays.sort(idList);
+               for (int j = 1; j <= idList.length; j++) {
+                   if (idList[j-1] != j) {
+                       tmpIdx = j;
+                       break;
+                   }
+               }
+           }
+       }
+       return prefix + tmpIdx;
+   }
 
    /*
     * Update media status on PackageManager.
@@ -9702,15 +9716,10 @@ class PackageManagerService extends IPackageManager.Stub {
        if (doGc) {
            Runtime.getRuntime().gc();
        }
-       // List stale containers and destroy stale temporary containers.
+       // List stale containers.
        if (removeCids != null) {
            for (String cid : removeCids) {
-               if (cid.startsWith(mTempContainerPrefix)) {
-                   Log.i(TAG, "Destroying stale temporary container " + cid);
-                   PackageHelper.destroySdDir(cid);
-               } else {
-                   Log.w(TAG, "Container " + cid + " is stale");
-               }
+               Log.w(TAG, "Container " + cid + " is stale");
            }
        }
    }

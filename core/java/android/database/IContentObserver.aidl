@@ -28,4 +28,5 @@ interface IContentObserver
      * commit on the cursor that is being observed.
      */
     oneway void onChange(boolean selfUpdate);
+
 }

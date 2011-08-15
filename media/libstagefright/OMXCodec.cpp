@@ -139,7 +139,7 @@ static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.PV.mpeg4enc" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.video.encoder.h263" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.encoder" },
+//    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.encoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.PV.h263enc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.PV.avcenc" },
@@ -2995,8 +2995,15 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 mOutputFormat->setInt32(
                         kKeyHeight, (video_def->nFrameHeight + 15) & -16);
             } else {
+#ifdef USE_QCOM_OMX_FIX
+                //Update the Stride and Slice Height
+                //Allows creation of renderer with correct height and width
+                mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
+                mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
+#else
                 mOutputFormat->setInt32(kKeyWidth, video_def->nFrameWidth);
                 mOutputFormat->setInt32(kKeyHeight, video_def->nFrameHeight);
+#endif
             }
 
             mOutputFormat->setInt32(kKeyColorFormat, video_def->eColorFormat);

@@ -6,7 +6,7 @@ Android applications using the Android SDK. </p>
 
 <h3>Supported Operating Systems</h3>
 <ul>
-  <li>Windows XP (32-bit), Vista (32- or 64-bit), or Windows 7 (32- or 64-bit)</li>
+  <li>Windows XP (32-bit) or Vista (32- or 64-bit)</li>
   <li>Mac OS X 10.5.8 or later (x86 only)</li>
   <li>Linux (tested on Linux Ubuntu Hardy Heron)
     <ul>
@@ -23,9 +23,6 @@ installation notes</a>.</li>
 <h4 style="margin-top:.25em"><em>Eclipse IDE</em></h4>
     <ul>
       <li>Eclipse 3.4 (Ganymede) or 3.5 (Galileo)
-         <p class="caution"><strong>Caution:</strong> There are known issues with the ADT plugin
-running with Eclipse 3.6. Please stay on 3.5 until further notice.</p>
-      </li>
       <li>Eclipse <a href="http://www.eclipse.org/jdt">JDT</a> plugin (included
 in most Eclipse IDE packages) </li>
       <li>If you need to install or update Eclipse, you can download it from <a
